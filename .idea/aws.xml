@@ -14,4 +14,7 @@
       </list>
     </option>
   </component>
+  <component name="connectionManager">
+    <option name="activeConnectionId" value="sso-session:d-926767ff42" />
+  </component>
 </project>

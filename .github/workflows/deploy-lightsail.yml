@@ -31,8 +31,9 @@ jobs:
         host: ${{ secrets.LIGHTSAIL_HOST }}
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-        source: "backend/"
+        source: "apps/*"
         target: "/opt/bitnami/apache/apps/"
+        strip_components: 1
         
     - name: Restart Apache
       uses: appleboy/ssh-action@v0.1.5
