@@ -1,0 +1,207 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Setting;
+
+class CustomFieldSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        // php artisan db:seed --class=CustomFieldSeeder
+
+        // Setting::set('payment_screen', 'service_split'); //no_split , service_split
+        // Setting::save();
+        // exit;
+        Setting::set('task_id', '9cb7d4ea-98e8-4597-b300-72fab74344e0');
+        Setting::set('sub_task_id', '9d4cab02-0dd6-4fb7-80b5-fb8cd0125169');
+        Setting::set('client_task_id', '9cb7d4ea-971b-449a-bc4c-92b7f89aade9');
+
+        Setting::set('journals', [
+            'process' => [
+                [
+                    'id' => 'submitted',
+                    'name' => 'Submitted',
+                    'color' => 'rgb(95, 208, 243)'
+                ],
+                [
+                    'id' => 'rejected',
+                    'name' => 'Rejected',
+                    'color' => 'rgb(225 102 93)'
+                ],
+                [
+                    'id' => 'with_editor',
+                    'name' => 'Next With Editor',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'under_review',
+                    'name' => 'Under Review',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'revise_before_review',
+                    'name' => 'Revise Before Review',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'revision',
+                    'name' => 'Revision',
+                    'color' => 'rgb(119, 106, 207)'
+                ],
+                [
+                    'id' => 'revision_submitted',
+                    'name' => 'Revision Submitted',
+                    'color' => 'rgb(95, 208, 243)'
+                ],
+                [
+                    'id' => 'revision_rejected',
+                    'name' => 'Revision Rejected',
+                    'color' => 'rgb(225 102 93)'
+                ],
+                [
+                    'id' => 'accepted',
+                    'name' => 'Accepted',
+                    'color' => 'rgb(99, 150, 19)'
+                ],
+            ],
+            'revision' => [
+                [
+                    'id' => 'assigned',
+                    'name' => 'Assigned',
+                    'color' => 'rgb(119, 106, 207)'
+                ],
+                [
+                    'id' => 'unassigned',
+                    'name' => 'Unassigned',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'plag',
+                    'name' => 'Plag.',
+                    'color' => 'rgb(119, 106, 207)'
+                ],
+                [
+                    'id' => 'submission',
+                    'name' => 'Submission',
+                    'color' => 'rgb(95, 208, 243)'
+                ],
+                [
+                    'id' => 'completed',
+                    'name' => 'Completed',
+                    'color' => 'rgb(99, 150, 19)'
+                ],
+                [
+                    'id' => 'revision_rejected',
+                    'name' => 'Revision Rejected',
+                    'color' => 'rgb(225 102 93)'
+                ],
+            ],
+            'copyright' => [
+                [
+                    'id' => 'copyright_not_received',
+                    'name' => 'Copyright Not Received',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'copyright_received',
+                    'name' => 'Copyright Received',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'copyright_submitted',
+                    'name' => 'Copyright Submitted',
+                    'color' => 'rgb(150, 155, 165)'
+                ]
+            ],
+            'proof' => [
+                [
+                    'id' => 'proof_not_received',
+                    'name' => 'Proof Not Received',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'proof_received',
+                    'name' => 'Proof Received',
+                    'color' => 'rgb(150, 155, 165)'
+                ],
+                [
+                    'id' => 'proof_submitted',
+                    'name' => 'Proof Submitted',
+                    'color' => 'rgb(150, 155, 165)'
+                ]
+            ],
+            'final' => [
+                [
+                    'id' => 'production',
+                    'name' => 'Production',
+                    'color' => 'rgb(99, 150, 19)'
+                ],
+                [
+                    'id' => 'published',
+                    'name' => 'Published',
+                    'color' => 'rgb(99, 150, 19)'
+                ],
+                [
+                    'id' => 'pub_copy_received',
+                    'name' => 'Pub. Copy Received',
+                    'color' => 'rgb(99, 150, 19)'
+                ]
+      
+            ]
+        ]);
+
+        Setting::set('custom_fields', [
+            'contact' => [
+                [
+                    'name' => 'address',
+                    'type' => 'text',
+                    'label' => 'Address'
+                ]
+            ],
+            'deal' => [
+                [
+                    'name' => 'ref_custorm_name',
+                    'type' => 'text',
+                    'label' => 'Ref. Customer Name'
+                ],
+                [
+                    'name' => 'domain',
+                    'type' => 'text',
+                    'label' => 'Domain'
+                ],
+                [
+                    'name' => 'university',
+                    'type' => 'text',
+                    'label' => 'University'
+                ],
+                [
+                    'name' => 'topic',
+                    'type' => 'text',
+                    'label' => 'Topic'
+                ],
+                [
+                    'name' => 'service',
+                    'type' => 'text',
+                    'label' => 'Service'
+                ],
+                [
+                    'name' => 'journal_commitment',
+                    'type' => 'text',
+                    'label' => 'Journal Commitment'
+                ],
+                [
+                    'name' => 'description',
+                    'type' => 'text',
+                    'label' => 'Description'
+                ],
+            ]
+        ]);
+        Setting::save();
+    }
+}

@@ -1,0 +1,1 @@
+export const selectPermissions = (state) => state.common?.settings?.permissions;
