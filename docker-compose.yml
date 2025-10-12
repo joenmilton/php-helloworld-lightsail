@@ -1,0 +1,17 @@
+services:
+  apache:
+    image: bitnami/apache:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    environment:
+      - APACHE_HTTP_PORT_NUMBER=8080
+  
+  mysql:
+    image: bitnami/mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=myapp
+    ports:
+      - "3306:3306"

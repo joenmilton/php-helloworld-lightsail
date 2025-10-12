@@ -1,0 +1,6 @@
+*.pem
+*.key
+.env
+vendor/
+.DS_Store
+Thumbs.db

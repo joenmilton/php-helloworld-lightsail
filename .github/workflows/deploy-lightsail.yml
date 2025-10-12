@@ -1,0 +1,41 @@
+name: Deploy to Lightsail
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to Lightsail
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        script: |
+          cd /opt/bitnami/apache/htdocs/
+          sudo rm -rf *
+          
+    - name: Copy files via SCP
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        source: "*.php,*.json,README.md"
+        target: "/opt/bitnami/apache/htdocs/"
+        
+    - name: Restart Apache
+      uses: appleboy/ssh-action@v0.1.5
+      with:
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        script: |
+          sudo chown -R bitnami:daemon /opt/bitnami/apache/htdocs/
+          sudo /opt/bitnami/ctlscript.sh restart apache
