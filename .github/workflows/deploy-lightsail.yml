@@ -20,6 +20,8 @@ jobs:
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
           sudo mkdir -p /opt/bitnami/apache/apps/
+          sudo chown -R bitnami:daemon /opt/bitnami/apache/apps/
+          sudo chmod -R 775 /opt/bitnami/apache/apps/
           cd /opt/bitnami/apache/apps/
           sudo rm -rf *
           
@@ -29,7 +31,7 @@ jobs:
         host: ${{ secrets.LIGHTSAIL_HOST }}
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-        source: "."
+        source: "backend/"
         target: "/opt/bitnami/apache/apps/"
         
     - name: Restart Apache
