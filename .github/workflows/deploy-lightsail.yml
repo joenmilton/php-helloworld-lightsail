@@ -19,6 +19,7 @@ jobs:
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
+          sudo mkdir -p /opt/bitnami/apache/apps/
           cd /opt/bitnami/apache/apps/
           sudo rm -rf *
           
@@ -38,9 +39,20 @@ jobs:
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          sudo chown bitnami:bitnami /opt/bitnami/apache/apps/
-          sudo chown bitnami:bitnami /opt/bitnami/apache/conf/
-          sudo chown bitnami:bitnami /opt/bitnami/apache/htdocs/
-          sudo chown bitnami:bitnami /opt/bitnami/apache/office/
-          sudo chown bitnami:bitnami /opt/bitnami/apache/backoffice/
+          sudo chown -R bitnami:daemon /opt/bitnami/apache/apps/
+          sudo chmod -R 755 /opt/bitnami/apache/apps/
+          
+          # Backup config if not exists
+          if [ ! -f /opt/bitnami/apache/conf/httpd.conf.backup ]; then
+            sudo cp /opt/bitnami/apache/conf/httpd.conf /opt/bitnami/apache/conf/httpd.conf.backup
+          fi
+          
+          # Update DocumentRoot (idempotent)
+          sudo sed -i 's|DocumentRoot "/opt/bitnami/apache/htdocs"|DocumentRoot "/opt/bitnami/apache/apps"|g' /opt/bitnami/apache/conf/httpd.conf
+          sudo sed -i 's|<Directory "/opt/bitnami/apache/htdocs">|<Directory "/opt/bitnami/apache/apps">|g' /opt/bitnami/apache/conf/httpd.conf
+          
+          # Test Apache config
+          sudo /opt/bitnami/apache/bin/httpd -t
+          
+          # Restart Apache
           sudo /opt/bitnami/ctlscript.sh restart apache
