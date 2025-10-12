@@ -1,6 +1,6 @@
 # Deploy to Amazon Lightsail - Bitnami LAMP
 
-## Option 1: Direct Deployment (Recommended)
+## Deployment Steps
 
 ### Step 1: Create Lightsail Instance
 1. Go to AWS Lightsail Console
@@ -25,29 +25,7 @@ scp -i your-key.pem -r . bitnami@your-instance-ip:/opt/bitnami/apache/htdocs/
 - URL: `http://your-instance-ip`
 - Default Bitnami path: `/opt/bitnami/apache/htdocs/`
 
-## Option 2: Container Deployment
 
-### Build and Push to Registry
-```bash
-# Build image
-docker build -t your-app .
-
-# Tag for registry
-docker tag your-app:latest your-registry/your-app:latest
-
-# Push to registry
-docker push your-registry/your-app:latest
-```
-
-### Deploy on Lightsail
-```bash
-# SSH to Lightsail instance
-ssh -i your-key.pem bitnami@your-instance-ip
-
-# Pull and run container
-docker pull your-registry/your-app:latest
-docker run -d -p 80:80 your-registry/your-app:latest
-```
 
 ## Quick Setup Commands
 
