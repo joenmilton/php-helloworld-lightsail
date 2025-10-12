@@ -19,7 +19,7 @@ jobs:
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          cd /opt/bitnami/apache/htdocs/
+          cd /opt/bitnami/apache/apps/
           sudo rm -rf *
           
     - name: Copy files via SCP
@@ -28,8 +28,8 @@ jobs:
         host: ${{ secrets.LIGHTSAIL_HOST }}
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-        source: "*.php,*.json,README.md"
-        target: "/opt/bitnami/apache/htdocs/"
+        source: "."
+        target: "/opt/bitnami/apache/apps/"
         
     - name: Restart Apache
       uses: appleboy/ssh-action@v0.1.5
@@ -38,5 +38,9 @@ jobs:
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          sudo chown -R bitnami:daemon /opt/bitnami/apache/htdocs/
+          sudo chown bitnami:bitnami /opt/bitnami/apache/apps/
+          sudo chown bitnami:bitnami /opt/bitnami/apache/conf/
+          sudo chown bitnami:bitnami /opt/bitnami/apache/htdocs/
+          sudo chown bitnami:bitnami /opt/bitnami/apache/office/
+          sudo chown bitnami:bitnami /opt/bitnami/apache/backoffice/
           sudo /opt/bitnami/ctlscript.sh restart apache

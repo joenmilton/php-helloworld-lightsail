@@ -15,7 +15,7 @@ fi
 echo "Deploying to Lightsail: $LIGHTSAIL_IP"
 
 # Copy files
-scp -i "$SSH_KEY" -r *.php *.json README.md bitnami@"$LIGHTSAIL_IP":/opt/bitnami/apache/htdocs/
+scp -i "$SSH_KEY" -r . bitnami@"$LIGHTSAIL_IP":/opt/bitnami/apache/htdocs/
 
 # Restart Apache
 ssh -i "$SSH_KEY" bitnami@"$LIGHTSAIL_IP" "sudo /opt/bitnami/ctlscript.sh restart apache"
