@@ -19,21 +19,39 @@ jobs:
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          sudo mkdir -p /opt/bitnami/apache/apps/
+          cd /opt/bitnami/apache/apps/
           sudo chown -R bitnami:daemon /opt/bitnami/apache/apps/
           sudo chmod -R 775 /opt/bitnami/apache/apps/
-          cd /opt/bitnami/apache/apps/
-          sudo rm -rf *
           
-    - name: Copy files via SCP
-      uses: appleboy/scp-action@v0.1.4
+          # Remove all files except storage, config directories and .env file
+          sudo find . -maxdepth 1 ! -name '.' ! -name 'storage' ! -name 'config' ! -name '.env' -exec rm -rf {} +
+          
+    - name: Copy files conditionally
+      uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.LIGHTSAIL_HOST }}
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-        source: "apps/*"
-        target: "/opt/bitnami/apache/apps/"
-        strip_components: 1
+        script: |
+          cd /opt/bitnami/apache/apps/
+          
+          # Copy files from repository via git
+          git clone https://github.com/${{ github.repository }} /tmp/repo
+          cd /tmp/repo/apps/
+          
+          # Copy all files except storage, config, .env if they exist on server
+          for item in *; do
+            if [[ "$item" == "storage" || "$item" == "config" || "$item" == ".env" ]]; then
+              if [[ ! -e "/opt/bitnami/apache/apps/$item" ]]; then
+                sudo cp -r "$item" "/opt/bitnami/apache/apps/"
+              fi
+            else
+              sudo cp -r "$item" "/opt/bitnami/apache/apps/"
+            fi
+          done
+          
+          # Cleanup
+          rm -rf /tmp/repo
         
     - name: Restart Apache
       uses: appleboy/ssh-action@v0.1.5
