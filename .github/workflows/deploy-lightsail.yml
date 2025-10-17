@@ -19,39 +19,62 @@ jobs:
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
+          # Create apps and backoffice directories if they don't exist
+          sudo mkdir -p /opt/bitnami/apache/apps/
+          sudo mkdir -p /opt/bitnami/apache/apps/backoffice/
           cd /opt/bitnami/apache/apps/
           sudo chown -R bitnami:daemon /opt/bitnami/apache/apps/
           sudo chmod -R 775 /opt/bitnami/apache/apps/
           
-          # Remove all files except storage, config directories and .env file
-          sudo find . -maxdepth 1 ! -name '.' ! -name 'storage' ! -name 'config' ! -name '.env' -exec rm -rf {} +
+          # Remove all files except backoffice directory
+          sudo find . -maxdepth 1 ! -name '.' ! -name 'backoffice' -exec rm -rf {} +
           
-    - name: Copy files conditionally
+          # Cleanup inside backoffice directory (preserve storage, config, .env)
+          cd backoffice/
+          sudo find . -maxdepth 1 ! -name '.' ! -name 'storage' ! -name 'config' ! -name '.env' -exec rm -rf {} +
+          cd ..
+          
+    - name: Copy non-backoffice files
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        source: "apps/*"
+        target: "/opt/bitnami/apache/apps/"
+        strip_components: 1
+        exclude: "backoffice"
+        
+    - name: Copy backoffice files conditionally
       uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.LIGHTSAIL_HOST }}
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          cd /opt/bitnami/apache/apps/
+          cd /opt/bitnami/apache/apps/backoffice/
           
-          # Copy files from repository via git
-          git clone https://github.com/${{ github.repository }} /tmp/repo
-          cd /tmp/repo/apps/
+          # Copy storage, config, .env only if they don't exist
+          if [[ ! -e "storage" ]]; then
+            scp -r -o StrictHostKeyChecking=no bitnami@localhost:/tmp/checkout/apps/backoffice/storage . 2>/dev/null || echo "No storage in source"
+          fi
+          if [[ ! -e "config" ]]; then
+            scp -r -o StrictHostKeyChecking=no bitnami@localhost:/tmp/checkout/apps/backoffice/config . 2>/dev/null || echo "No config in source"
+          fi
+          if [[ ! -e ".env" ]]; then
+            scp -o StrictHostKeyChecking=no bitnami@localhost:/tmp/checkout/apps/backoffice/.env . 2>/dev/null || echo "No .env in source"
+          fi
           
-          # Copy all files except storage, config, .env if they exist on server
-          for item in *; do
-            if [[ "$item" == "storage" || "$item" == "config" || "$item" == ".env" ]]; then
-              if [[ ! -e "/opt/bitnami/apache/apps/$item" ]]; then
-                sudo cp -r "$item" "/opt/bitnami/apache/apps/"
-              fi
-            else
-              sudo cp -r "$item" "/opt/bitnami/apache/apps/"
-            fi
-          done
-          
-          # Cleanup
-          rm -rf /tmp/repo
+    - name: Copy other backoffice files
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        source: "apps/backoffice/*"
+        target: "/opt/bitnami/apache/apps/backoffice/"
+        strip_components: 2
+        exclude: "storage,config,.env"
         
     - name: Restart Apache
       uses: appleboy/ssh-action@v0.1.5
