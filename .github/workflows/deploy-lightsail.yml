@@ -35,14 +35,20 @@ jobs:
           cd ..
           
     - name: Copy non-backoffice files
-      uses: burnett01/rsync-deployments@6.0.0
+      uses: appleboy/ssh-action@v0.1.5
       with:
-        switches: -avzr --delete --exclude=backoffice/
-        path: apps/
-        remote_path: /opt/bitnami/apache/apps/
-        remote_host: ${{ secrets.LIGHTSAIL_HOST }}
-        remote_user: bitnami
-        remote_key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        script: |
+          cd /opt/bitnami/apache/apps/
+          
+          # Copy all files/directories from apps except backoffice
+          for item in /tmp/checkout/apps/*; do
+            if [ -e "$item" ] && [ "$(basename "$item")" != "backoffice" ]; then
+              cp -r "$item" . 2>/dev/null || echo "Failed to copy $(basename "$item")"
+            fi
+          done
         
     - name: Copy backoffice files conditionally
       uses: appleboy/ssh-action@v0.1.5
@@ -65,14 +71,23 @@ jobs:
           fi
           
     - name: Copy other backoffice files
-      uses: burnett01/rsync-deployments@6.0.0
+      uses: appleboy/ssh-action@v0.1.5
       with:
-        switches: -avzr --exclude=storage/ --exclude=config/ --exclude=.env
-        path: apps/backoffice/
-        remote_path: /opt/bitnami/apache/apps/backoffice/
-        remote_host: ${{ secrets.LIGHTSAIL_HOST }}
-        remote_user: bitnami
-        remote_key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        script: |
+          cd /opt/bitnami/apache/apps/backoffice/
+          
+          # Copy all files/directories from backoffice except storage, config, .env
+          for item in /tmp/checkout/apps/backoffice/*; do
+            if [ -e "$item" ]; then
+              basename_item=$(basename "$item")
+              if [ "$basename_item" != "storage" ] && [ "$basename_item" != "config" ] && [ "$basename_item" != ".env" ]; then
+                cp -r "$item" . 2>/dev/null || echo "Failed to copy $basename_item"
+              fi
+            fi
+          done
         
     - name: Process vhosts files
       uses: appleboy/ssh-action@v0.1.5
