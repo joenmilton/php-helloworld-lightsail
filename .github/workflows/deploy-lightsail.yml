@@ -35,15 +35,10 @@ jobs:
           cd ..
           
     - name: Copy non-backoffice files
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.LIGHTSAIL_HOST }}
-        username: bitnami
-        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-        source: "apps/*"
-        target: "/opt/bitnami/apache/apps/"
-        strip_components: 1
-        exclude: "backoffice"
+      run: |
+        tar --exclude='apps/backoffice' -czf apps-no-backoffice.tar.gz apps/
+        scp -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") apps-no-backoffice.tar.gz bitnami@${{ secrets.LIGHTSAIL_HOST }}:/tmp/
+        ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") bitnami@${{ secrets.LIGHTSAIL_HOST }} "cd /tmp && tar -xzf apps-no-backoffice.tar.gz && cp -r apps/* /opt/bitnami/apache/apps/ && rm -rf apps apps-no-backoffice.tar.gz"
         
     - name: Copy backoffice files conditionally
       uses: appleboy/ssh-action@v0.1.5
@@ -66,15 +61,35 @@ jobs:
           fi
           
     - name: Copy other backoffice files
-      uses: appleboy/scp-action@v0.1.4
+      run: |
+        tar --exclude='apps/backoffice/storage' --exclude='apps/backoffice/config' --exclude='apps/backoffice/.env' -czf backoffice-files.tar.gz apps/backoffice/
+        scp -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") backoffice-files.tar.gz bitnami@${{ secrets.LIGHTSAIL_HOST }}:/tmp/
+        ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") bitnami@${{ secrets.LIGHTSAIL_HOST }} "cd /tmp && tar -xzf backoffice-files.tar.gz && cp -r apps/backoffice/* /opt/bitnami/apache/apps/backoffice/ && rm -rf apps backoffice-files.tar.gz"
+        
+    - name: Process vhosts files
+      uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{ secrets.LIGHTSAIL_HOST }}
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
-        source: "apps/backoffice/*"
-        target: "/opt/bitnami/apache/apps/backoffice/"
-        strip_components: 2
-        exclude: "storage,config,.env"
+        script: |
+          # Create apache conf vhosts directory
+          sudo mkdir -p /opt/bitnami/apache/conf/vhosts/
+          
+          # Process vhosts files if they exist
+          if [ -d "/opt/bitnami/apache/apps/vhosts" ]; then
+            cd /opt/bitnami/apache/apps/vhosts/
+            for file in *; do
+              if [ -f "$file" ] && [ ! -f "/opt/bitnami/apache/conf/vhosts/$file" ]; then
+                sudo cp "$file" "/opt/bitnami/apache/conf/vhosts/"
+                echo "Copied $file to apache conf vhosts"
+              fi
+            done
+            
+            # Remove vhosts directory from apps
+            cd ..
+            sudo rm -rf vhosts/
+          fi
         
     - name: Restart Apache
       uses: appleboy/ssh-action@v0.1.5
