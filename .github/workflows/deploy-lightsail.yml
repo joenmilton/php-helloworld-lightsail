@@ -23,8 +23,8 @@ jobs:
           sudo mkdir -p /opt/bitnami/apache/apps/
           sudo mkdir -p /opt/bitnami/apache/apps/backoffice/
           cd /opt/bitnami/apache/apps/
-          sudo chown -R bitnami:daemon /opt/bitnami/apache/apps/
-          sudo chmod -R 775 /opt/bitnami/apache/apps/
+          sudo chown bitnami:root /opt/bitnami/apache/apps/
+          sudo chmod 775 /opt/bitnami/apache/apps/
           
           # Remove all files except backoffice directory
           sudo find . -maxdepth 1 ! -name '.' ! -name 'backoffice' -exec rm -rf {} +
@@ -83,7 +83,15 @@ jobs:
         username: bitnami
         key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         script: |
-          sudo chown -R bitnami:daemon /opt/bitnami/apache/apps/
+          # Set bitnami:root permissions for Apache directories
+          sudo chown bitnami:root /opt/bitnami/apache/apps/
+          sudo chown -R bitnami:root /opt/bitnami/apache/conf/
+          sudo chown -R bitnami:root /opt/bitnami/apache/htdocs/
+          sudo mkdir -p /opt/bitnami/apache/office/
+          sudo chown -R bitnami:root /opt/bitnami/apache/office/
+          
+          # Set bitnami:bitnami for all content inside apps
+          sudo chown -R bitnami:bitnami /opt/bitnami/apache/apps/*
           sudo chmod -R 755 /opt/bitnami/apache/apps/
           
           # Backup config if not exists
