@@ -1,0 +1,126 @@
+.custom-logo {
+    background: #fff;
+    padding: 0 9px;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    margin: 3px 0;
+}
+.slider-margin {
+    margin-left: 0px;
+    margin-right: 15px;
+}
+
+.text-neutral-500 {
+    --tw-text-opacity: 1;
+    color: #64748b;
+}
+.text-neutral-800 {
+    --tw-text-opacity: 1;
+    color: #000;
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.justify-self-end {
+    justify-self: end;
+}
+.col-span-1 {
+    grid-column: span 1 / span 1;
+}
+.col-span-2 {
+    grid-column: span 2 / span 2;
+}
+.col-span-12 {
+    grid-column: span 12 / span 12;
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid-cols-12 {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+.gap-y-1 {
+    row-gap: .25rem;
+}
+
+.hover\:bg-neutral-50:hover {
+    --tw-bg-opacity: 1;
+    background-color: #f8fafc;
+}
+.hover\:whitespace-normal:hover {
+    white-space: normal;
+}
+.hover\:overflow-visible:hover {
+    overflow: visible;
+}
+.hover\:max-w-none:hover {
+    max-width: none;
+}
+
+
+
+.logo-txt{
+    font-weight: 700;
+    font-size: 24px;
+    vertical-align: text-bottom;
+    margin-left: 0px;
+    line-height: 1;
+    color: var(--bs-body-color)
+}
+.sub-text{
+    font-size: 16px;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.file-box {
+    min-height: 320px;
+    max-height: 320px;
+    overflow-y: scroll;
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #ccc transparent; /* For Firefox */
+}
+
+/* Chrome, Edge, and Safari */
+.file-box::-webkit-scrollbar {
+    width: 6px; /* Width of the scrollbar */
+}
+
+.file-box::-webkit-scrollbar-track {
+    background: transparent; /* Background of the track */
+}
+
+.file-box::-webkit-scrollbar-thumb {
+    background-color: #888; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+.file-box::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Darker color when hovered */
+}
+
+.ql-container {
+    border-radius: 0 0 5px 5px;
+    background-color: white;
+    min-height: 100px;
+}
+.ql-editor {
+    border-radius: 0 0 5px 5px;
+    background-color: white;
+    min-height: 100px;
+}
+.ql-toolbar.ql-snow {
+    background-color: #fff;
+}
+.quill .ql-toolbar {
+    border-radius: 5px 5px 0 0;
+}
