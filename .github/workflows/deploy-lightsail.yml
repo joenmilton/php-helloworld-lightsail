@@ -34,6 +34,15 @@ jobs:
           sudo find . -maxdepth 1 ! -name '.' ! -name 'storage' ! -name 'config' ! -name '.env' -exec rm -rf {} +
           cd ..
           
+    - name: Upload all files to temp location
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.LIGHTSAIL_HOST }}
+        username: bitnami
+        key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        source: "apps/*"
+        target: "/tmp/deploy/"
+        
     - name: Copy non-backoffice files
       uses: appleboy/ssh-action@v0.1.5
       with:
@@ -44,7 +53,7 @@ jobs:
           cd /opt/bitnami/apache/apps/
           
           # Copy all files/directories from apps except backoffice
-          for item in /tmp/checkout/apps/*; do
+          for item in /tmp/deploy/apps/*; do
             if [ -e "$item" ] && [ "$(basename "$item")" != "backoffice" ]; then
               cp -r "$item" . 2>/dev/null || echo "Failed to copy $(basename "$item")"
             fi
@@ -60,14 +69,14 @@ jobs:
           cd /opt/bitnami/apache/apps/backoffice/
           
           # Copy storage, config, .env only if they don't exist
-          if [[ ! -e "storage" ]]; then
-            scp -r -o StrictHostKeyChecking=no bitnami@localhost:/tmp/checkout/apps/backoffice/storage . 2>/dev/null || echo "No storage in source"
+          if [[ ! -e "storage" ]] && [[ -d "/tmp/deploy/apps/backoffice/storage" ]]; then
+            cp -r /tmp/deploy/apps/backoffice/storage . 2>/dev/null || echo "No storage in source"
           fi
-          if [[ ! -e "config" ]]; then
-            scp -r -o StrictHostKeyChecking=no bitnami@localhost:/tmp/checkout/apps/backoffice/config . 2>/dev/null || echo "No config in source"
+          if [[ ! -e "config" ]] && [[ -d "/tmp/deploy/apps/backoffice/config" ]]; then
+            cp -r /tmp/deploy/apps/backoffice/config . 2>/dev/null || echo "No config in source"
           fi
-          if [[ ! -e ".env" ]]; then
-            scp -o StrictHostKeyChecking=no bitnami@localhost:/tmp/checkout/apps/backoffice/.env . 2>/dev/null || echo "No .env in source"
+          if [[ ! -e ".env" ]] && [[ -f "/tmp/deploy/apps/backoffice/.env" ]]; then
+            cp /tmp/deploy/apps/backoffice/.env . 2>/dev/null || echo "No .env in source"
           fi
           
     - name: Copy other backoffice files
@@ -80,7 +89,7 @@ jobs:
           cd /opt/bitnami/apache/apps/backoffice/
           
           # Copy all files/directories from backoffice except storage, config, .env
-          for item in /tmp/checkout/apps/backoffice/*; do
+          for item in /tmp/deploy/apps/backoffice/*; do
             if [ -e "$item" ]; then
               basename_item=$(basename "$item")
               if [ "$basename_item" != "storage" ] && [ "$basename_item" != "config" ] && [ "$basename_item" != ".env" ]; then
