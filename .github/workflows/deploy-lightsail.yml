@@ -35,10 +35,14 @@ jobs:
           cd ..
           
     - name: Copy non-backoffice files
-      run: |
-        tar --exclude='apps/backoffice' -czf apps-no-backoffice.tar.gz apps/
-        scp -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") apps-no-backoffice.tar.gz bitnami@${{ secrets.LIGHTSAIL_HOST }}:/tmp/
-        ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") bitnami@${{ secrets.LIGHTSAIL_HOST }} "cd /tmp && tar -xzf apps-no-backoffice.tar.gz && cp -r apps/* /opt/bitnami/apache/apps/ && rm -rf apps apps-no-backoffice.tar.gz"
+      uses: burnett01/rsync-deployments@6.0.0
+      with:
+        switches: -avzr --delete --exclude=backoffice/
+        path: apps/
+        remote_path: /opt/bitnami/apache/apps/
+        remote_host: ${{ secrets.LIGHTSAIL_HOST }}
+        remote_user: bitnami
+        remote_key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         
     - name: Copy backoffice files conditionally
       uses: appleboy/ssh-action@v0.1.5
@@ -61,10 +65,14 @@ jobs:
           fi
           
     - name: Copy other backoffice files
-      run: |
-        tar --exclude='apps/backoffice/storage' --exclude='apps/backoffice/config' --exclude='apps/backoffice/.env' -czf backoffice-files.tar.gz apps/backoffice/
-        scp -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") backoffice-files.tar.gz bitnami@${{ secrets.LIGHTSAIL_HOST }}:/tmp/
-        ssh -o StrictHostKeyChecking=no -i <(echo "${{ secrets.LIGHTSAIL_SSH_KEY }}") bitnami@${{ secrets.LIGHTSAIL_HOST }} "cd /tmp && tar -xzf backoffice-files.tar.gz && cp -r apps/backoffice/* /opt/bitnami/apache/apps/backoffice/ && rm -rf apps backoffice-files.tar.gz"
+      uses: burnett01/rsync-deployments@6.0.0
+      with:
+        switches: -avzr --exclude=storage/ --exclude=config/ --exclude=.env
+        path: apps/backoffice/
+        remote_path: /opt/bitnami/apache/apps/backoffice/
+        remote_host: ${{ secrets.LIGHTSAIL_HOST }}
+        remote_user: bitnami
+        remote_key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
         
     - name: Process vhosts files
       uses: appleboy/ssh-action@v0.1.5
