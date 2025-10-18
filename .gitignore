@@ -2,7 +2,7 @@
 *.key
 /.phpunit.cache
 /node_modules
-/backoffice/node_modules
+/apps/backoffice/node_modules
 /public/build
 /public/hot
 /public/storage
