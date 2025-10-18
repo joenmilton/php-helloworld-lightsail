@@ -55,7 +55,7 @@ jobs:
           # Copy all files/directories from apps except backoffice
           for item in /tmp/deploy/apps/*; do
             if [ -e "$item" ] && [ "$(basename "$item")" != "backoffice" ]; then
-              cp -r "$item" . 2>/dev/null || echo "Failed to copy $(basename "$item")"
+              sudo cp -r "$item" . 2>/dev/null || echo "Failed to copy $(basename "$item")"
             fi
           done
         
@@ -70,10 +70,10 @@ jobs:
           
           # Copy storage, .env only if they don't exist
           if [[ ! -e "storage" ]] && [[ -d "/tmp/deploy/apps/backoffice/storage" ]]; then
-            cp -r /tmp/deploy/apps/backoffice/storage . 2>/dev/null || echo "No storage in source"
+            sudo cp -r /tmp/deploy/apps/backoffice/storage . 2>/dev/null || echo "No storage in source"
           fi
           if [[ ! -e ".env" ]] && [[ -f "/tmp/deploy/apps/backoffice/.env" ]]; then
-            cp /tmp/deploy/apps/backoffice/.env . 2>/dev/null || echo "No .env in source"
+            sudo cp /tmp/deploy/apps/backoffice/.env . 2>/dev/null || echo "No .env in source"
           fi
           
     - name: Copy other backoffice files
@@ -90,7 +90,7 @@ jobs:
             if [ -e "$item" ]; then
               basename_item=$(basename "$item")
               if [ "$basename_item" != "storage" ] && [ "$basename_item" != ".env" ]; then
-                cp -r "$item" . 2>/dev/null || echo "Failed to copy $basename_item"
+                sudo cp -r "$item" . 2>/dev/null || echo "Failed to copy $basename_item"
               fi
             fi
           done
