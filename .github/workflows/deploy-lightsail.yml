@@ -173,17 +173,21 @@ jobs:
           sudo chown -R bitnami:bitnami /opt/bitnami/apache/apps/*
           sudo chmod -R 755 /opt/bitnami/apache/apps/
           
-          # Backup config if not exists
-          if [ ! -f /opt/bitnami/apache/conf/httpd.conf.backup ]; then
-            sudo cp /opt/bitnami/apache/conf/httpd.conf /opt/bitnami/apache/conf/httpd.conf.backup
+          # Run postprocess scripts
+          if [ -d "/opt/bitnami/apache/apps/postprocess" ]; then
+            cd /opt/bitnami/apache/apps/postprocess/
+            for script in *.sh; do
+              if [ -f "$script" ]; then
+                chmod +x "$script"
+                ./$script
+              fi
+            done
           fi
-          
-          # Update DocumentRoot (idempotent)
-          sudo sed -i 's|DocumentRoot "/opt/bitnami/apache/htdocs"|DocumentRoot "/opt/bitnami/apache/apps"|g' /opt/bitnami/apache/conf/httpd.conf
-          sudo sed -i 's|<Directory "/opt/bitnami/apache/htdocs">|<Directory "/opt/bitnami/apache/apps">|g' /opt/bitnami/apache/conf/httpd.conf
-          
-          # Test Apache config
-          sudo /opt/bitnami/apache/bin/httpd -t
-          
+
+          # Remove db directory
+          if [ -d "/opt/bitnami/apache/apps/db" ]; then
+            sudo rm -rf /opt/bitnami/apache/apps/db/
+          fi
+
           # Restart Apache
           sudo /opt/bitnami/ctlscript.sh restart apache
