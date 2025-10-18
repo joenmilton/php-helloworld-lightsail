@@ -29,9 +29,9 @@ jobs:
           # Remove all files except backoffice directory
           sudo find . -maxdepth 1 ! -name '.' ! -name 'backoffice' -exec rm -rf {} +
           
-          # Cleanup inside backoffice directory (preserve storage, config, .env)
+          # Cleanup inside backoffice directory (preserve storage, .env)
           cd backoffice/
-          sudo find . -maxdepth 1 ! -name '.' ! -name 'storage' ! -name 'config' ! -name '.env' -exec rm -rf {} +
+          sudo find . -maxdepth 1 ! -name '.' ! -name 'storage' ! -name '.env' -exec rm -rf {} +
           cd ..
           
     - name: Upload all files to temp location
@@ -68,12 +68,9 @@ jobs:
         script: |
           cd /opt/bitnami/apache/apps/backoffice/
           
-          # Copy storage, config, .env only if they don't exist
+          # Copy storage, .env only if they don't exist
           if [[ ! -e "storage" ]] && [[ -d "/tmp/deploy/apps/backoffice/storage" ]]; then
             cp -r /tmp/deploy/apps/backoffice/storage . 2>/dev/null || echo "No storage in source"
-          fi
-          if [[ ! -e "config" ]] && [[ -d "/tmp/deploy/apps/backoffice/config" ]]; then
-            cp -r /tmp/deploy/apps/backoffice/config . 2>/dev/null || echo "No config in source"
           fi
           if [[ ! -e ".env" ]] && [[ -f "/tmp/deploy/apps/backoffice/.env" ]]; then
             cp /tmp/deploy/apps/backoffice/.env . 2>/dev/null || echo "No .env in source"
@@ -88,11 +85,11 @@ jobs:
         script: |
           cd /opt/bitnami/apache/apps/backoffice/
           
-          # Copy all files/directories from backoffice except storage, config, .env
+          # Copy all files/directories from backoffice except storage, .env
           for item in /tmp/deploy/apps/backoffice/*; do
             if [ -e "$item" ]; then
               basename_item=$(basename "$item")
-              if [ "$basename_item" != "storage" ] && [ "$basename_item" != "config" ] && [ "$basename_item" != ".env" ]; then
+              if [ "$basename_item" != "storage" ] && [ "$basename_item" != ".env" ]; then
                 cp -r "$item" . 2>/dev/null || echo "Failed to copy $basename_item"
               fi
             fi
